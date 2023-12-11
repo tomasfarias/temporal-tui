@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "temporal-tui"
+version = "0.1.0"
+description = "A TUI for Temporalio"
+authors = ["Tomás Farías Santana <tomas@tomasfarias.dev>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<4.0"
+temporalio = ">=1.4.0"
+textual = ">=0.44.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
