@@ -1,1 +1,5 @@
 /target
+pyrightconfig.json
+**/__pycache__/
+.env
+.envrc
