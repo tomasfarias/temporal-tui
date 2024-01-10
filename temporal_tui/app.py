@@ -1,4 +1,3 @@
-import typing
 
 import textual
 import textual.app
@@ -6,22 +5,6 @@ import textual.widgets as widgets
 
 from temporal_tui.models import Workflow
 from temporal_tui.service import TemporalService
-
-WORKFLOW_COLUMNS = (
-    "id",
-    "run_id",
-    "workflow_type",
-    "status",
-    "start_time",
-    "execution_time",
-    "close_time",
-)
-
-
-def get_workflow_row(
-    workflow: Workflow, fields: typing.Sequence[str]
-) -> typing.Iterator[str]:
-    return (getattr(workflow, field) for field in fields)
 
 
 class TemporalTUI(textual.app.App):
@@ -41,13 +24,8 @@ class TemporalTUI(textual.app.App):
     async def load_workflows(self, data_table: widgets.DataTable) -> None:
         workflows = await self.temporal.list_workflows()
 
-        data_table.add_columns(*WORKFLOW_COLUMNS)
-        data_table.add_rows(
-            [
-                tuple(get_workflow_row(workflow, WORKFLOW_COLUMNS))
-                for workflow in workflows
-            ]
-        )
+        data_table.add_columns(*Workflow.columns())
+        data_table.add_rows([workflow.as_cells() for workflow in workflows])
 
         data_table.loading = False
 
