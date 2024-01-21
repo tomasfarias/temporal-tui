@@ -1,4 +1,5 @@
 import sys
+
 from app import TemporalTUI
 
 if __name__ == "__main__":

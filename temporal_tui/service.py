@@ -62,6 +62,9 @@ class TemporalService:
 
     async def connect(self) -> temporalio.client.Client:
         """Connect to underlying temporalio.client.Client."""
+        if self._client is not None:
+            return self._client
+
         namespace = self.namespace or "default"
 
         if (
@@ -80,14 +83,10 @@ class TemporalService:
         client = await temporalio.client.Client.connect(
             self.address, namespace=namespace, tls=tls
         )
+
+        self._client = client
+
         return client
-
-    async def client(self) -> temporalio.client.Client:
-        """Return a client, connecting if required."""
-        if self._client is None:
-            self._client = await self.connect()
-
-        return self._client
 
     async def list_workflows(self) -> list[Workflow]:
         return [workflow async for workflow in self.iter_workflows()]
@@ -99,9 +98,18 @@ class TemporalService:
 
         Workflows will be requested in batches of `page_size` workflows.
         """
-        client = await self.client()
+        client = await self.connect()
 
         iterator = client.list_workflows(page_size=page_size)
 
         async for workflow_execution in iterator:
             yield Workflow.from_workflow_execution(workflow_execution)
+
+    async def fetch_workflow_history(self, workflow: Workflow):
+        client = await self.connect()
+
+        handle = client.get_workflow_handle(
+            workflow_id=workflow.id, run_id=workflow.run_id
+        )
+
+        return await handle.fetch_history()
